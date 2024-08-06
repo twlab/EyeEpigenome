@@ -1,11 +1,11 @@
 import ImageMapper, { Map } from "react-img-mapper";
 import { useState, useRef, useEffect } from "react";
 import { map } from "./localData/imageMapperData";
-import { CellCheckBox } from "./CellCheckBox";
+import { CellCheckBox, startUrl } from "./CellCheckBox";
 import eyeImg from "./assets/eyecell-img.png";
 import { v4 as uuidv4 } from "uuid";
 import { CrossCircledIcon } from "@radix-ui/react-icons";
-
+import axios from 'axios';
 import {
   Card,
   CardContent,
@@ -18,7 +18,7 @@ import { Button } from "./components/ui/button";
 import { toast } from "./components/ui/use-toast";
 const windowWidth = window.innerWidth;
 
-function ImageMapperCell(props: any) {
+function ImageMapperCell({ hubId, hubReady, setHubReady, setHubId }) {
   const [windowSize, setWindowSize] = useState(windowWidth);
   const [mapData, setMapData] = useState<{ [key: string]: any }>(map);
   const [cellData, setCellData] = useState<Array<any>>([]);
@@ -39,7 +39,7 @@ function ImageMapperCell(props: any) {
     setImgCoords(`${e.pageX}` + " " + `${e.pageY}`);
   };
   useEffect(() => {
-    console.log(windowWidth);
+    // console.log(windowWidth);
     if (targetRef.current) {
       const rect = targetRef.current.getBoundingClientRect();
 
@@ -81,21 +81,99 @@ function ImageMapperCell(props: any) {
     }
   }
   function handleSubmitToEg() {
-    console.log(submitData);
-    let toastDisplay = Object.entries(submitData).map(([key]) => ({
-      [key]: submitData[key].url,
-    }));
-    toast({
-      title: "Submitted these cell data to the Epigenome Browser",
-      description: (
-        <pre className="mt-2 w-[635px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">
-            {JSON.stringify(toastDisplay, null, 1)}
-          </code>
-        </pre>
-      ),
-    });
+    // console.log(submitData);
+    setHubReady(false);
+    if(Object.keys(submitData).length < 1) {
+      toast({
+        title: "Please choose some datasets",
+        description: (
+          <p className="bg-red-500 text-white text-xl">Error, data selection is empty.</p>
+        ),
+      })
+    }
+    dataToHub(submitData)
+    // let toastDisplay = Object.entries(submitData).map(([key]) => ({
+    //   [key]: submitData[key].url,
+    // }));
+    // toast({
+    //   title: "Submitted these cell data to the Epigenome Browser",
+    //   description: (
+    //     <pre className="mt-2 w-[635px] rounded-md bg-slate-950 p-4">
+    //       <code className="text-white">
+    //         {JSON.stringify(toastDisplay, null, 1)}
+    //       </code>
+    //     </pre>
+    //   ),
+    // });
   }
+
+function dataToHub(data: any){
+  let hub:any[] = [];
+  for (const [key, value] of Object.entries(data)) {
+    // console.log(key);
+    // console.log(value)
+    for (const [folder, files] of Object.entries(value.url)){
+      let type = folder === 'hic'? 'hic': 'bigWig';
+      let assay = folder.split('_')[0];
+      if(folder === 'mC_bw') {
+        hub.push({
+          name: `${key} CGN methylation`,
+          url: startUrl + folder+'/' + files[0],
+          showOnHubLoad: true,
+          type,
+          metadata: {
+            cell: key,
+            assay: 'CGN methylation'
+          }
+        })
+        hub.push({
+          name: `${key} CHN methylation`,
+          url: startUrl + folder + '/' + files[1],
+          showOnHubLoad: true,
+          type,
+          metadata: {
+            cell: key,
+            assay: 'CHN methylation'
+          }
+        })
+      }else {
+        hub.push({
+          name: `${key} ${assay}`,
+          url: startUrl + folder + '/' + files,
+          type,
+          showOnHubLoad: true,
+          metadata: {
+            cell: key,
+            assay,
+          }
+        })
+      }
+    }
+  }
+  // console.log(hub)
+  let hid=uuidv4()
+  axios.post('https://hcwxisape8.execute-api.us-east-1.amazonaws.com/dev/datahub/',
+    {
+      "_id": `${hid}`,
+      "hub": {
+        "content": hub,
+      }
+    }
+  ).then((res) => {
+    // console.log(res);
+    setHubReady(true);
+    setHubId(hid)
+  }).catch((err) => {
+    // console.error(err);
+    toast({
+      title: "Something error happened",
+      description: (
+        <p className="bg-red-500 text-white text-xl">API request fails, please contact site admin.</p>
+      ),
+    })
+  });
+}
+
   function handleImgClick(cell: any) {
     setCellHoverArea((prevState) => ({
       ...prevState,
@@ -164,19 +242,19 @@ function ImageMapperCell(props: any) {
           onClick={(area: any) => handleImgClick(area)}
           map={mapData as Map}
         />
-        <div>{imgCoords}</div>
+        {/* <div>{imgCoords}</div> */}
       </div>
-      <Card className="w-[1400px] flex flex-wrap max-w-[2560px] justify-center item-center min-h-[375px] ">
+      <Card className="flex flex-wrap max-w-[2560px] justify-center item-center min-h-[375px] ">
         <CardHeader>
-          <CardTitle> Selected Cells</CardTitle>
+          <CardTitle>Selected Cell types</CardTitle>
         </CardHeader>
-        <CardContent className="w-[1400px] flex flex-wrap flex-direction-[row] max-w-[2560px] justify-center item-center ">
+        <CardContent className="flex flex-wrap flex-direction-[row] max-w-[2560px] justify-center item-center ">
           {cellData.map((item, index) => (
             <div className="w-[280px] " key={item.id}>
               <Card
                 className={
                   cellHoverArea[item.name] === true
-                    ? "w-[300px] bg-blue-500"
+                    ? "w-[300px] bg-yellow-500"
                     : "w-[300px]"
                 }
               >
@@ -201,7 +279,10 @@ function ImageMapperCell(props: any) {
           ))}
         </CardContent>
         <CardFooter>
-          <Button onClick={() => handleSubmitToEg()}>Submit</Button>
+          <Button onClick={() => handleSubmitToEg()}>Visualize</Button>
+          {
+            hubReady && <p className="px-4" >Open the visualization in a new window, <a href={`https://epigenomegateway.wustl.edu/browser/?genome=hg38&hub=https://hcwxisape8.execute-api.us-east-1.amazonaws.com/dev/datahub/${hubId}`} target="_blank" rel="noreferrer">click here</a>.</p> 
+          }
         </CardFooter>
       </Card>
     </>

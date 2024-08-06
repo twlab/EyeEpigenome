@@ -16,23 +16,23 @@ import {
 } from "@/components/ui/form";
 
 import { useEffect, useState } from "react";
-const startUrl = "https://epigenome.wustl.edu/EyeEpigenome/data/";
+export const startUrl = "https://epigenome.wustl.edu/EyeEpigenome/data/";
 const items = [
   {
     id: "ATAC_bw",
-    label: "ATAC_bw",
+    label: "ATAC",
   },
   {
     id: "RNA_bw",
-    label: "RNA_bw",
+    label: "RNA",
   },
   {
     id: "hic",
-    label: "hic",
+    label: "Hi-C",
   },
   {
     id: "mC_bw",
-    label: "mC_bw",
+    label: "Methylation",
   },
 ] as const;
 
@@ -56,7 +56,8 @@ export function CellCheckBox(props: any) {
     {
       for (const dataType of dataChoice) {
         urlObj[dataType] =
-          startUrl + dataType + "/" + URLs[dataType][props.cell.name];
+          // startUrl + dataType + "/" + URLs[dataType][props.cell.name];
+          URLs[dataType][props.cell.name];
       }
     }
     props.getData({
