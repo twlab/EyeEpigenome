@@ -122,7 +122,7 @@ export const map = {
       strokeColor: "transparent",
     },
     {
-      name: "Pericytes",
+      name: "Perictyes",
       shape: "rect",
       coords: [592, 315, 754, 344],
       preFillColor: "rgba(255, 0, 0, 0.5)",

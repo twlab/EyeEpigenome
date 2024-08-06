@@ -90,6 +90,7 @@ function ImageMapperCell({ hubId, hubReady, setHubReady, setHubId }) {
           <p className="bg-red-500 text-white text-xl">Error, data selection is empty.</p>
         ),
       })
+      return;
     }
     dataToHub(submitData)
     // let toastDisplay = Object.entries(submitData).map(([key]) => ({
