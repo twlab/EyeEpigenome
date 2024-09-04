@@ -29,7 +29,7 @@ function App() {
       </div>
       <div>{hubReady && <BrowserFrame hubId={hubId} />}</div>
       <div className="inline-flex items-center justify-center w-full">
-        <hr className=" w-32 h-1 my-8 bg-gray-200 border-0 rounded dark:bg-gray-700" />
+        <hr className=" w-32 h-1  bg-gray-200 border-0 rounded dark:bg-gray-700" />
         <div
           className="py-2"
           style={{ display: "flex", justifyContent: "center" }}

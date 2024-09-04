@@ -4,6 +4,7 @@ import { map } from "./localData/imageMapperData";
 import { CellCheckBox, startUrl } from "./CellCheckBox";
 import eyeImg from "./assets/eyecell-img.png";
 import { v4 as uuidv4 } from "uuid";
+import useResizeObserver from "./Resize";
 import { CrossCircledIcon } from "@radix-ui/react-icons";
 import axios from "axios";
 import {
@@ -21,13 +22,14 @@ function ImageMapperCell(props: any) {
   const [windowSize, setWindowSize] = useState<{ [key: string]: any }>({});
   const [mapData, setMapData] = useState<{ [key: string]: any }>(map);
   const [cellData, setCellData] = useState<Array<any>>([]);
-
+  const [image, setImage] = useState<any>();
+  const [level, setLevel] = useState(0);
   const [submitData, setSubmitData] = useState<{ [key: string]: any }>({});
   const [imgCoords, setImgCoords] = useState("0");
   const [cellHoverArea, setCellHoverArea] = useState<{ [key: string]: any }>(
     []
   );
-
+  const [ref, size] = useResizeObserver();
   const targetRef = useRef<HTMLDivElement>(null);
   function checkStateVals() {}
   const handleMouseEnter = (e: any) => {
@@ -207,6 +209,12 @@ function ImageMapperCell(props: any) {
       } else {
         let id = uuidv4();
         cell["id"] = id;
+        let cardLevel = size.width / 290;
+        let level = prevCellData.length / (cardLevel - 1);
+        console.log(prevCellData.length / (cardLevel - 1), cardLevel);
+        if (Math.floor(level) >= 1) {
+          setLevel(Math.floor(level));
+        }
         return [...prevCellData, cell];
       }
     });
@@ -234,37 +242,56 @@ function ImageMapperCell(props: any) {
     );
     setSubmitData({ ...tempSubmitData });
     setCellData([...tempCellData]);
+    let cardLevel = size.width / 290;
+    let level = cellData.length / (cardLevel - 1);
+
+    if (Math.floor(level) >= 1) {
+      setLevel(Math.floor(level));
+    }
   }
   useEffect(() => {
     checkStateVals();
   }, [cellHoverArea]);
+  useEffect(() => {
+    let newkey = uuidv4();
+    console.log("WUT", size);
+    setImage(
+      <ImageMapper
+        key={newkey}
+        src={eyeImg}
+        width={size.width}
+        imgWidth={1508}
+        onImageClick={(e: any) => {
+          setImgCoords("" + e.pageX + ", " + e.pageY);
+        }}
+        onMouseMove={(e) => {
+          setImgCoords("" + e.active);
+        }}
+        onMouseLeave={(e) => handleHoverLeave(e)}
+        onMouseEnter={(e) => handleHover(e)}
+        onClick={(area: any) => handleImgClick(area)}
+        map={mapData as Map}
+      />
+    );
+    let cardLevel = size.width / 290;
+    let level = cellData.length / (cardLevel - 1);
 
+    if (Math.floor(level) >= 1) {
+      setLevel(Math.floor(level));
+    }
+  }, [size]);
   return (
     <>
       <div
+        ref={ref}
         style={{
-          display: "flex",
-          flexDirection: "column",
+          height: 1100 + 310 * level,
         }}
       >
-        <ImageMapper
-          src={eyeImg}
-          width={1400}
-          imgWidth={1508}
-          onImageClick={(e: any) => {
-            setImgCoords("" + e.pageX + ", " + e.pageY);
-          }}
-          onMouseMove={(e) => {
-            setImgCoords("" + e.active);
-          }}
-          onMouseLeave={(e) => handleHoverLeave(e)}
-          onMouseEnter={(e) => handleHover(e)}
-          onClick={(area: any) => handleImgClick(area)}
-          map={mapData as Map}
-        />
+        {image}
 
         <div>
-          <Card className="flex flex-wrap max-w-[2560px] justify-center item-center min-h-[375px] ">
+          <Card className="flex flex-wrap max-w-[2560px] justify-center item-center min-h-[300px] ">
             <CardHeader>
               <CardTitle>Selected Cell types</CardTitle>
             </CardHeader>
@@ -274,8 +301,8 @@ function ImageMapperCell(props: any) {
                   <Card
                     className={
                       cellHoverArea[item.name] === true
-                        ? "w-[300px] bg-yellow-500"
-                        : "w-[300px]"
+                        ? "w-[290px] bg-yellow-500"
+                        : "w-[290px]"
                     }
                   >
                     <CrossCircledIcon
