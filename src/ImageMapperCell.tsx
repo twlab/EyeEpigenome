@@ -5,7 +5,7 @@ import { CellCheckBox, startUrl } from "./CellCheckBox";
 import eyeImg from "./assets/eyecell-img.png";
 import { v4 as uuidv4 } from "uuid";
 import { CrossCircledIcon } from "@radix-ui/react-icons";
-import axios from 'axios';
+import axios from "axios";
 import {
   Card,
   CardContent,
@@ -16,12 +16,12 @@ import {
 } from "@/components/ui/card";
 import { Button } from "./components/ui/button";
 import { toast } from "./components/ui/use-toast";
-const windowWidth = window.innerWidth;
 
-function ImageMapperCell({ hubId, hubReady, setHubReady, setHubId }) {
-  const [windowSize, setWindowSize] = useState(windowWidth);
+function ImageMapperCell(props: any) {
+  const [windowSize, setWindowSize] = useState<{ [key: string]: any }>({});
   const [mapData, setMapData] = useState<{ [key: string]: any }>(map);
   const [cellData, setCellData] = useState<Array<any>>([]);
+
   const [submitData, setSubmitData] = useState<{ [key: string]: any }>({});
   const [imgCoords, setImgCoords] = useState("0");
   const [cellHoverArea, setCellHoverArea] = useState<{ [key: string]: any }>(
@@ -82,17 +82,19 @@ function ImageMapperCell({ hubId, hubReady, setHubReady, setHubId }) {
   }
   function handleSubmitToEg() {
     // console.log(submitData);
-    setHubReady(false);
-    if(Object.keys(submitData).length < 1) {
+    props.setHubReady(false);
+    if (Object.keys(submitData).length < 1) {
       toast({
         title: "Please choose some datasets",
         description: (
-          <p className="bg-red-500 text-white text-xl">Error, data selection is empty.</p>
+          <p className="bg-red-500 text-white text-xl">
+            Error, data selection is empty.
+          </p>
         ),
-      })
+      });
       return;
     }
-    dataToHub(submitData)
+    dataToHub(submitData);
     // let toastDisplay = Object.entries(submitData).map(([key]) => ({
     //   [key]: submitData[key].url,
     // }));
@@ -108,72 +110,84 @@ function ImageMapperCell({ hubId, hubReady, setHubReady, setHubId }) {
     // });
   }
 
-function dataToHub(data: any){
-  let hub:any[] = [];
-  for (const [key, value] of Object.entries(data)) {
-    // console.log(key);
-    // console.log(value)
-    for (const [folder, files] of Object.entries(value.url)){
-      let type = folder === 'hic'? 'hic': 'bigWig';
-      let assay = folder.split('_')[0];
-      if(folder === 'mC_bw') {
-        hub.push({
-          name: `${key} CGN methylation`,
-          url: startUrl + folder+'/' + files[0],
-          showOnHubLoad: true,
-          type,
-          metadata: {
-            cell: key,
-            assay: 'CGN methylation'
-          }
-        })
-        hub.push({
-          name: `${key} CHN methylation`,
-          url: startUrl + folder + '/' + files[1],
-          showOnHubLoad: true,
-          type,
-          metadata: {
-            cell: key,
-            assay: 'CHN methylation'
-          }
-        })
-      }else {
-        hub.push({
-          name: `${key} ${assay}`,
-          url: startUrl + folder + '/' + files,
-          type,
-          showOnHubLoad: true,
-          metadata: {
-            cell: key,
-            assay,
-          }
-        })
+  function dataToHub(data: { [key: string]: any }) {
+    let hub: any[] = [];
+    console.log(data);
+    for (const [key, value] of Object.entries(data)) {
+      // console.log(key);
+      // console.log(value)
+
+      for (const [folder, files] of Object.entries(value.url)) {
+        console.log(folder, files);
+        let type = ["hic_10K", "hic_25K", "hic_100K"].includes(folder)
+          ? "hic"
+          : "bigWig";
+        let assay = folder.split("_")[0];
+        if (folder === "mC_bw") {
+          const fileArr = Array.isArray(files) ? files : [files];
+          hub.push({
+            name: `${key} CGN methylation`,
+            url: startUrl + folder + "/" + fileArr[0],
+            showOnHubLoad: true,
+            type,
+            metadata: {
+              cell: key,
+              assay: "CGN methylation",
+            },
+          });
+          hub.push({
+            name: `${key} CHN methylation`,
+            url: startUrl + folder + "/" + fileArr[1],
+            showOnHubLoad: true,
+            type,
+            metadata: {
+              cell: key,
+              assay: "CHN methylation",
+            },
+          });
+        } else {
+          hub.push({
+            name: `${key} ${assay}`,
+            url: startUrl + folder + "/" + files,
+            type,
+            showOnHubLoad: true,
+            metadata: {
+              cell: key,
+              assay,
+            },
+          });
+        }
       }
     }
+    // console.log(hub)
+    let hid = uuidv4();
+    axios
+      .post(
+        "https://hcwxisape8.execute-api.us-east-1.amazonaws.com/dev/datahub/",
+        {
+          _id: `${hid}`,
+          hub: {
+            content: hub,
+          },
+        }
+      )
+      .then((res) => {
+        // console.log(res);
+        props.setHubReady(true);
+        props.setHubId(hid);
+      })
+      .catch((err) => {
+        // console.error(err);
+        toast({
+          title: "Something error happened",
+          description: (
+            <p className="bg-red-500 text-white text-xl">
+              API request fails, please contact site admin.
+            </p>
+          ),
+        });
+      });
   }
-  // console.log(hub)
-  let hid=uuidv4()
-  axios.post('https://hcwxisape8.execute-api.us-east-1.amazonaws.com/dev/datahub/',
-    {
-      "_id": `${hid}`,
-      "hub": {
-        "content": hub,
-      }
-    }
-  ).then((res) => {
-    // console.log(res);
-    setHubReady(true);
-    setHubId(hid)
-  }).catch((err) => {
-    // console.error(err);
-    toast({
-      title: "Something error happened",
-      description: (
-        <p className="bg-red-500 text-white text-xl">API request fails, please contact site admin.</p>
-      ),
-    })
-  });
-}
 
   function handleImgClick(cell: any) {
     setCellHoverArea((prevState) => ({
@@ -224,10 +238,15 @@ function dataToHub(data: any){
   useEffect(() => {
     checkStateVals();
   }, [cellHoverArea]);
-  // coordinate are scales to 700px
+
   return (
     <>
-      <div ref={targetRef}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <ImageMapper
           src={eyeImg}
           width={1400}
@@ -243,49 +262,65 @@ function dataToHub(data: any){
           onClick={(area: any) => handleImgClick(area)}
           map={mapData as Map}
         />
-        {/* <div>{imgCoords}</div> */}
-      </div>
-      <Card className="flex flex-wrap max-w-[2560px] justify-center item-center min-h-[375px] ">
-        <CardHeader>
-          <CardTitle>Selected Cell types</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-wrap flex-direction-[row] max-w-[2560px] justify-center item-center ">
-          {cellData.map((item, index) => (
-            <div className="w-[280px] " key={item.id}>
-              <Card
-                className={
-                  cellHoverArea[item.name] === true
-                    ? "w-[300px] bg-yellow-500"
-                    : "w-[300px]"
-                }
-              >
-                <CrossCircledIcon
-                  onClick={() => deleteCard(item)}
-                  className="cursor-pointer text-black-500 hover:text-red-500"
-                  style={{ position: "relative", top: "10px", left: "10px" }}
-                />
-                <CardHeader>
-                  <div className="space-y-8"></div>
-                  <CardTitle> {item.name}</CardTitle>
-                  <CardDescription>
-                    Select the data you want to display
-                  </CardDescription>
-                </CardHeader>
 
-                <CardContent>
-                  <CellCheckBox cell={item} getData={getData} />
-                </CardContent>
-              </Card>
-            </div>
-          ))}
-        </CardContent>
-        <CardFooter>
-          <Button onClick={() => handleSubmitToEg()}>Visualize</Button>
-          {
-            hubReady && <p className="px-4" >Open the visualization in a new window, <a href={`https://epigenomegateway.wustl.edu/browser/?genome=hg38&hub=https://hcwxisape8.execute-api.us-east-1.amazonaws.com/dev/datahub/${hubId}`} target="_blank" rel="noreferrer">click here</a>.</p> 
-          }
-        </CardFooter>
-      </Card>
+        <div>
+          <Card className="flex flex-wrap max-w-[2560px] justify-center item-center min-h-[375px] ">
+            <CardHeader>
+              <CardTitle>Selected Cell types</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-wrap flex-direction-[row] max-w-[2560px] justify-center item-center ">
+              {cellData.map((item, index) => (
+                <div className="w-[280px] " key={item.id}>
+                  <Card
+                    className={
+                      cellHoverArea[item.name] === true
+                        ? "w-[300px] bg-yellow-500"
+                        : "w-[300px]"
+                    }
+                  >
+                    <CrossCircledIcon
+                      onClick={() => deleteCard(item)}
+                      className="cursor-pointer text-black-500 hover:text-red-500"
+                      style={{
+                        position: "relative",
+                        top: "10px",
+                        left: "10px",
+                      }}
+                    />
+                    <CardHeader>
+                      <div className="space-y-8"></div>
+                      <CardTitle> {item.name}</CardTitle>
+                      <CardDescription>
+                        Select the data you want to display
+                      </CardDescription>
+                    </CardHeader>
+
+                    <CardContent>
+                      <CellCheckBox cell={item} getData={getData} />
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
+            </CardContent>
+            <CardFooter>
+              <Button onClick={() => handleSubmitToEg()}>Visualize</Button>
+              {props.hubReady && (
+                <p className="px-4">
+                  Open the visualization in a new window,{" "}
+                  <a
+                    href={`https://epigenomegateway.wustl.edu/browser/?genome=hg38&hub=https://hcwxisape8.execute-api.us-east-1.amazonaws.com/dev/datahub/${props.hubId}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    click here
+                  </a>
+                  .
+                </p>
+              )}
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
     </>
   );
 }

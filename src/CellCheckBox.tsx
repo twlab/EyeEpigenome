@@ -19,16 +19,24 @@ import { useEffect, useState } from "react";
 export const startUrl = "https://epigenome.wustl.edu/EyeEpigenome/data/";
 const items = [
   {
-    id: "ATAC_bw",
+    id: "ATAC_50bs",
     label: "ATAC",
   },
   {
-    id: "RNA_bw",
+    id: "RNA_50bs",
     label: "RNA",
   },
   {
-    id: "hic",
-    label: "Hi-C",
+    id: "hic_10K",
+    label: "Hi-C: 10k",
+  },
+  {
+    id: "hic_25K",
+    label: "Hi-C: 25k",
+  },
+  {
+    id: "hic_100K",
+    label: "Hi-C: 100k",
   },
   {
     id: "mC_bw",

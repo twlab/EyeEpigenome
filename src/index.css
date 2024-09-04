@@ -19,7 +19,9 @@ body {
   display: flex;
   place-items: center;
   min-width: 700px;
+  max-width: 2560px;
   justify-content: center;
+
 }
 
 #root {

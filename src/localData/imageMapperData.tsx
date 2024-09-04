@@ -66,7 +66,7 @@ export const map = {
       strokeColor: "transparent",
     },
     {
-      name: "Red_bipolar",
+      name: "Rod_bipolar",
       shape: "rect",
       coords: [1265, 150, 1431, 185],
       preFillColor: "rgba(0, 255, 0, 0.5)",
