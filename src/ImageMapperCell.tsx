@@ -19,11 +19,9 @@ import { Button } from "./components/ui/button";
 import { toast } from "./components/ui/use-toast";
 
 function ImageMapperCell(props: any) {
-  const [windowSize, setWindowSize] = useState<{ [key: string]: any }>({});
   const [mapData, setMapData] = useState<{ [key: string]: any }>(map);
   const [cellData, setCellData] = useState<Array<any>>([]);
-  const [image, setImage] = useState<any>();
-  const [level, setLevel] = useState(0);
+
   const [submitData, setSubmitData] = useState<{ [key: string]: any }>({});
   const [imgCoords, setImgCoords] = useState("0");
   const [cellHoverArea, setCellHoverArea] = useState<{ [key: string]: any }>(
@@ -33,6 +31,7 @@ function ImageMapperCell(props: any) {
   const targetRef = useRef<HTMLDivElement>(null);
   function checkStateVals() {}
   const handleMouseEnter = (e: any) => {
+    // this is for testing coordinates
     const rect = targetRef.current!.getBoundingClientRect();
 
     let dataIdxX = Math.floor(e.pageX - rect.left);
@@ -43,8 +42,6 @@ function ImageMapperCell(props: any) {
   useEffect(() => {
     // console.log(windowWidth);
     if (targetRef.current) {
-      const rect = targetRef.current.getBoundingClientRect();
-
       let tempObj = { ...mapData };
       let tempMapArea = [...mapData.areas];
 
@@ -207,14 +204,6 @@ function ImageMapperCell(props: any) {
       if (dupe) {
         return prevCellData;
       } else {
-        let id = uuidv4();
-        cell["id"] = id;
-        let cardLevel = size.width / 290;
-        let level = prevCellData.length / (cardLevel - 1);
-        console.log(prevCellData.length / (cardLevel - 1), cardLevel);
-        if (Math.floor(level) >= 1) {
-          setLevel(Math.floor(level));
-        }
         return [...prevCellData, cell];
       }
     });
@@ -242,53 +231,29 @@ function ImageMapperCell(props: any) {
     );
     setSubmitData({ ...tempSubmitData });
     setCellData([...tempCellData]);
-    let cardLevel = size.width / 290;
-    let level = cellData.length / (cardLevel - 1);
-
-    if (Math.floor(level) >= 1) {
-      setLevel(Math.floor(level));
-    }
   }
   useEffect(() => {
     checkStateVals();
   }, [cellHoverArea]);
-  useEffect(() => {
-    let newkey = uuidv4();
-    console.log("WUT", size);
-    setImage(
-      <ImageMapper
-        key={newkey}
-        src={eyeImg}
-        width={size.width}
-        imgWidth={1508}
-        onImageClick={(e: any) => {
-          setImgCoords("" + e.pageX + ", " + e.pageY);
-        }}
-        onMouseMove={(e) => {
-          setImgCoords("" + e.active);
-        }}
-        onMouseLeave={(e) => handleHoverLeave(e)}
-        onMouseEnter={(e) => handleHover(e)}
-        onClick={(area: any) => handleImgClick(area)}
-        map={mapData as Map}
-      />
-    );
-    let cardLevel = size.width / 290;
-    let level = cellData.length / (cardLevel - 1);
 
-    if (Math.floor(level) >= 1) {
-      setLevel(Math.floor(level));
-    }
-  }, [size]);
   return (
     <>
-      <div
-        ref={ref}
-        style={{
-          height: 1100 + 310 * level,
-        }}
-      >
-        {image}
+      <div ref={ref} style={{}}>
+        <ImageMapper
+          src={eyeImg}
+          parentWidth={size.width}
+          responsive={true}
+          onImageClick={(e: any) => {
+            setImgCoords("" + e.pageX + ", " + e.pageY);
+          }}
+          onMouseMove={(e) => {
+            setImgCoords("" + e.active);
+          }}
+          onMouseLeave={(e) => handleHoverLeave(e)}
+          onMouseEnter={(e) => handleHover(e)}
+          onClick={(area: any) => handleImgClick(area)}
+          map={mapData as Map}
+        />
 
         <div>
           <Card className="flex flex-wrap max-w-[2560px] justify-center item-center min-h-[300px] ">
