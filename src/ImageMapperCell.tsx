@@ -204,6 +204,8 @@ function ImageMapperCell(props: any) {
       if (dupe) {
         return prevCellData;
       } else {
+        let id = uuidv4();
+        cell["id"] = id;
         return [...prevCellData, cell];
       }
     });
@@ -221,6 +223,8 @@ function ImageMapperCell(props: any) {
     }));
   }
   function deleteCard(cell: any) {
+    console.log(cell);
+    console.log(cellData, submitData);
     let tempCellData = cellData.filter((item, index) => {
       return item.id !== cell.id;
     });
@@ -229,9 +233,11 @@ function ImageMapperCell(props: any) {
         ([key]) => submitData[key].cell.id !== cell.id
       )
     );
+    console.log(tempSubmitData, tempCellData);
     setSubmitData({ ...tempSubmitData });
     setCellData([...tempCellData]);
   }
+
   useEffect(() => {
     checkStateVals();
   }, [cellHoverArea]);

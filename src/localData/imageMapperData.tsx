@@ -143,6 +143,20 @@ export const map = {
       strokeColor: "transparent",
     },
     {
+      name: "Macrophage",
+      shape: "rect",
+      coords: [754, 368, 924, 398],
+      preFillColor: "rgba(0, 255, 0, 0.5)",
+      strokeColor: "transparent",
+    },
+    {
+      name: "Mast_cell",
+      shape: "rect",
+      coords: [754, 398, 924, 425],
+      preFillColor: "rgba(0, 255, 0, 0.5)",
+      strokeColor: "transparent",
+    },
+    {
       name: "VSMC",
       shape: "rect",
       coords: [592, 399, 754, 425],
