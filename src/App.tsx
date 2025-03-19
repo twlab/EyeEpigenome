@@ -36,6 +36,13 @@ function App() {
         >
           Site created by{" "}
           <a
+            href="http://ayyagarilab.ucsd.edu/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Radha Ayyagari lab
+          </a>{" "}, 
+          <a
             href="http://renlab.sdsc.edu/renlab_website/"
             target="_blank"
             rel="noreferrer"

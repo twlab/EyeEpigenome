@@ -306,7 +306,7 @@ function ImageMapperCell(props: any) {
                 <p className="px-4">
                   Open the visualization in a new window,{" "}
                   <a
-                    href={`https://epigenomegateway.wustl.edu/browser/?genome=hg38&hub=https://hcwxisape8.execute-api.us-east-1.amazonaws.com/dev/datahub/${props.hubId}`}
+                    href={`https://epigenomegateway.wustl.edu/browser2022/?genome=hg38&hub=https://hcwxisape8.execute-api.us-east-1.amazonaws.com/dev/datahub/${props.hubId}`}
                     target="_blank"
                     rel="noreferrer"
                   >
