@@ -109,6 +109,11 @@ function ImageMapperCell(props: any) {
     // });
   }
 
+  const grouping = {
+    RNA: 1,
+    ATAC: 2,
+  };
+
   function dataToHub(data: { [key: string]: any }) {
     let hub: any[] = [];
     console.log(data);
@@ -145,6 +150,21 @@ function ImageMapperCell(props: any) {
             },
           });
         } else {
+          if (grouping.hasOwnProperty(assay)) {
+            hub.push({
+              name: `${key} ${assay}`,
+              url: startUrl + folder + "/" + files,
+              type,
+              showOnHubLoad: true,
+              options:{
+                group: grouping[assay]
+              },
+              metadata: {
+                cell: key,
+                assay,
+              },
+            });
+          }else {
           hub.push({
             name: `${key} ${assay}`,
             url: startUrl + folder + "/" + files,
@@ -155,6 +175,7 @@ function ImageMapperCell(props: any) {
               assay,
             },
           });
+          }
         }
       }
     }
