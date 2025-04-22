@@ -317,67 +317,22 @@ function ImageMapperCell(props: any) {
 
             <div className="flex w-full justify-between">
               {/* Human Data Section */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  width: mouseCellData.length === 0 ? "100%" : "50%",
-                }}
-              >
-                <h2 className="text-xl font-semibold text-gray-600 text-center mb-4">
-                  Human
-                </h2>
-                {/* Separator Line */}
-                <div className="w-full border-t border-gray-300 my-4"></div>
-                <CardContent className="flex flex-wrap justify-center items-center">
-                  {cellData.map((item, index) => (
-                    <div className="w-[250px] " key={item.id}>
-                      <Card
-                        className={`w-[255px] border border-gray-300 shadow-md rounded-lg overflow-hidden ${
-                          cellHoverArea[item.name]
-                            ? "bg-yellow-500"
-                            : "bg-white"
-                        }`}
-                      >
-                        <CrossCircledIcon
-                          onClick={() => deleteCard(item)}
-                          className="cursor-pointer text-black-500 hover:text-red-500"
-                          style={{
-                            position: "absolute",
-                            top: "10px",
-                            left: "10px",
-                          }}
-                        />
-                        <CardHeader>
-                          <CardTitle className="font-medium text-gray-800">
-                            {item.name}
-                          </CardTitle>
-                          <CardDescription className="text-sm text-gray-600">
-                            Select the data you want to display
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <CellCheckBox cell={item} getData={getData} />
-                        </CardContent>
-                      </Card>
-                    </div>
-                  ))}
-                </CardContent>
-              </div>
 
-              {/* Vertical Separator */}
-              <div className="border-r border-gray-300 mx-4"></div>
-
-              {/* Mouse Data Section */}
-              {mouseCellData.length > 0 && (
-                <div className="flex flex-col w-1/2">
-                  <h2 className="text-xl font-semibold text-gray-600 text-center mb-4">
-                    Mouse
+              {cellData.length > 0 ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    width: mouseCellData.length === 0 ? "100%" : "50%",
+                  }}
+                >
+                  <h2 className="text-xl font-semibold text-gray-600 text-center ">
+                    Human
                   </h2>
                   {/* Separator Line */}
-                  <div className="w-full border-t border-gray-300 my-4"></div>
+                  <div className="w-full border-t border-gray-300 my-3"></div>
                   <CardContent className="flex flex-wrap justify-center items-center">
-                    {mouseCellData.map((item, index) => (
+                    {cellData.map((item, index) => (
                       <div className="w-[250px] " key={item.id}>
                         <Card
                           className={`w-[255px] border border-gray-300 shadow-md rounded-lg overflow-hidden ${
@@ -390,7 +345,7 @@ function ImageMapperCell(props: any) {
                             onClick={() => deleteCard(item)}
                             className="cursor-pointer text-black-500 hover:text-red-500"
                             style={{
-                              position: "absolute",
+                              position: "relative",
                               top: "10px",
                               left: "10px",
                             }}
@@ -411,6 +366,63 @@ function ImageMapperCell(props: any) {
                     ))}
                   </CardContent>
                 </div>
+              ) : (
+                ""
+              )}
+              {/* Vertical Separator */}
+              <div className="border-r border-gray-300"></div>
+
+              {/* Mouse Data Section */}
+              {mouseCellData.length > 0 ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    width: cellData.length === 0 ? "100%" : "50%",
+                  }}
+                >
+                  <h2 className="text-xl font-semibold text-gray-600 text-center">
+                    Mouse
+                  </h2>
+                  {/* Separator Line */}
+                  <div className="w-full border-t border-gray-300 my-3"></div>
+                  <CardContent className="flex flex-wrap justify-center items-center">
+                    {mouseCellData.map((item, index) => (
+                      <div className="w-[250px] " key={item.id}>
+                        <Card
+                          className={`w-[255px] border border-gray-300 shadow-md rounded-lg overflow-hidden ${
+                            cellHoverArea[item.name]
+                              ? "bg-yellow-500"
+                              : "bg-white"
+                          }`}
+                        >
+                          <CrossCircledIcon
+                            onClick={() => deleteCard(item)}
+                            className="cursor-pointer text-black-500 hover:text-red-500"
+                            style={{
+                              position: "relative",
+                              top: "10px",
+                              left: "10px",
+                            }}
+                          />
+                          <CardHeader>
+                            <CardTitle className="font-medium text-gray-800">
+                              {item.name}
+                            </CardTitle>
+                            <CardDescription className="text-sm text-gray-600">
+                              Select the data you want to display
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <CellCheckBox cell={item} getData={getData} />
+                          </CardContent>
+                        </Card>
+                      </div>
+                    ))}
+                  </CardContent>
+                </div>
+              ) : (
+                ""
               )}
             </div>
 
