@@ -108,14 +108,40 @@ function ImageMapperCell(props: any) {
       });
       return;
     }
-    dataToHub(submitData);
+    const formattedSubmitData: { [key: string]: any } = {};
+    for (let key in submitData) {
+      const cell = submitData[key];
+      formattedSubmitData[`${key}`] = { url: {} };
+      if (cell["human"]) {
+        for (let cellKey in cell.human.url) {
+          const url = cell.human.url[cellKey];
+          formattedSubmitData[`${key}`].url[cellKey] = url;
+        }
+      }
+      if (cell["mouse"]) {
+        for (let cellMouseKey in cell.mouse.url) {
+          const url = cell.mouse.url[cellMouseKey];
+          if (
+            formattedSubmitData[`${key}`].url &&
+            cellMouseKey in formattedSubmitData[`${key}`].url
+          ) {
+            const humanUrl = formattedSubmitData[`${key}`].url[cellMouseKey];
+            formattedSubmitData[`${key}`].url[cellMouseKey] = [humanUrl, url];
+          } else {
+            formattedSubmitData[`${key}`].url[cellMouseKey] = url;
+          }
+        }
+      }
+    }
+    console.log(formattedSubmitData, "submit data");
+    // dataToHub(submitData);
     // let toastDisplay = Object.entries(submitData).map(([key]) => ({
     //   [key]: submitData[key].url,
     // }));
     // toast({
     //   title: "Submitted these cell data to the Epigenome Browser",
     //   description: (
-    //     <pre className="mt-2 w-[635px] rounded-md bg-slate-950 p-4">
+    //     <pre className="mtfor-2 w-[635px] rounded-md bg-slate-950 p-4">
     //       <code className="text-white">
     //         {JSON.stringify(toastDisplay, null, 1)}
     //       </code>
@@ -166,19 +192,23 @@ function ImageMapperCell(props: any) {
           });
         } else {
           if (grouping.hasOwnProperty(assay)) {
-            hub.push({
-              name: `${key} ${assay}`,
-              url: startUrl + folder + "/" + files,
-              type,
-              showOnHubLoad: true,
-              options: {
-                group: grouping[assay],
-              },
-              metadata: {
-                cell: key,
-                assay,
-              },
-            });
+            const fileArr = Array.isArray(files) ? files : [files];
+            if (Array.isArray(files)) {
+            } else {
+              hub.push({
+                name: `${key} ${assay}`,
+                url: startUrl + folder + "/" + files,
+                type,
+                showOnHubLoad: true,
+                options: {
+                  group: grouping[assay],
+                },
+                metadata: {
+                  cell: key,
+                  assay,
+                },
+              });
+            }
           } else {
             hub.push({
               name: `${key} ${assay}`,

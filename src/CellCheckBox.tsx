@@ -74,9 +74,9 @@ export function CellCheckBox(props: any) {
     const URLsType = props.cell.type === "human" ? URLs : mouseURLs;
 
     for (const dataType of dataChoice) {
-      urlObj[dataType] =
+      urlObj[dataType.label] =
         // startUrl + dataType + "/" + URLs[dataType][props.cell.name];
-        URLsType[dataType][props.cell.name];
+        `${dataType.id}` + "/" + `${URLsType[dataType.id][props.cell.name]}`;
     }
 
     console.log({
@@ -114,10 +114,10 @@ export function CellCheckBox(props: any) {
                             checked={field.value?.includes(item.id)}
                             onCheckedChange={(checked) => {
                               checked
-                                ? setDataChoice([...field.value, item.id])
+                                ? setDataChoice([...dataChoice, item])
                                 : setDataChoice(
-                                    field.value?.filter(
-                                      (value) => value !== item.id
+                                    dataChoice?.filter(
+                                      (value) => value.id !== item.id
                                     )
                                   );
                               return checked
