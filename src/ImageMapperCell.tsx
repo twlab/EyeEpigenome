@@ -309,14 +309,11 @@ function ImageMapperCell(props: any) {
         />
         <div>
           <Card className="flex flex-wrap max-w-[2560px] justify-center items-center min-h-[300px] bg-white shadow-lg rounded-lg p-4">
-            <CardHeader className="w-full mb-6 text-center">
+            <CardHeader className="w-full  text-center">
               <CardTitle className="text-2xl font-bold text-gray-700">
-                Selected Cell types
+                Selected Cell Types
               </CardTitle>
             </CardHeader>
-
-            {/* Separator Line */}
-            <div className="w-full border-t border-gray-300 my-4"></div>
 
             <div className="flex w-full justify-between">
               {/* Human Data Section */}
@@ -330,6 +327,8 @@ function ImageMapperCell(props: any) {
                 <h2 className="text-xl font-semibold text-gray-600 text-center mb-4">
                   Human
                 </h2>
+                {/* Separator Line */}
+                <div className="w-full border-t border-gray-300 my-4"></div>
                 <CardContent className="flex flex-wrap justify-center items-center">
                   {cellData.map((item, index) => (
                     <div className="w-[250px] " key={item.id}>
@@ -375,6 +374,8 @@ function ImageMapperCell(props: any) {
                   <h2 className="text-xl font-semibold text-gray-600 text-center mb-4">
                     Mouse
                   </h2>
+                  {/* Separator Line */}
+                  <div className="w-full border-t border-gray-300 my-4"></div>
                   <CardContent className="flex flex-wrap justify-center items-center">
                     {mouseCellData.map((item, index) => (
                       <div className="w-[250px] " key={item.id}>
@@ -413,7 +414,7 @@ function ImageMapperCell(props: any) {
               )}
             </div>
 
-            <CardFooter className="w-full mt-6 text-center">
+            <CardFooter className="w-full mt-6 text-center justify-center">
               <Button
                 className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
                 onClick={() => handleSubmitToEg()}
