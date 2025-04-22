@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { URLs } from "./localData/eyeUrl";
+import { mouseURLs, URLs } from "./localData/eyeUrl";
 import {
   Form,
   FormControl,
@@ -43,7 +43,16 @@ const items = [
     label: "Methylation",
   },
 ] as const;
-
+const mouseItems = [
+  {
+    id: "ATAC",
+    label: "ATAC",
+  },
+  {
+    id: "RNA",
+    label: "RNA",
+  },
+] as const;
 const FormSchema = z.object({
   items: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: "You have to select at least one item.",
@@ -52,6 +61,7 @@ const FormSchema = z.object({
 
 export function CellCheckBox(props: any) {
   const [dataChoice, setDataChoice] = useState<Array<any>>([]);
+  const itemsType = props.cell.type === "human" ? items : mouseItems;
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -61,13 +71,19 @@ export function CellCheckBox(props: any) {
 
   useEffect(() => {
     let urlObj: { [key: string]: any } = {};
+    const URLsType = props.cell.type === "human" ? URLs : mouseURLs;
     {
       for (const dataType of dataChoice) {
         urlObj[dataType] =
           // startUrl + dataType + "/" + URLs[dataType][props.cell.name];
-          URLs[dataType][props.cell.name];
+          URLsType[dataType][props.cell.name];
       }
     }
+    console.log({
+      cell: props.cell,
+      data: dataChoice,
+      url: urlObj,
+    });
     props.getData({
       cell: props.cell,
       data: dataChoice,
@@ -82,7 +98,7 @@ export function CellCheckBox(props: any) {
           name="items"
           render={() => (
             <FormItem>
-              {items.map((item) => (
+              {itemsType.map((item) => (
                 <FormField
                   key={item.id}
                   control={form.control}

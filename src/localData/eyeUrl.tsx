@@ -1,3 +1,35 @@
+export const mouseURLs: { [key: string]: any } = {
+  ATAC: {
+    All_amacrine: "All_amacrine.RPKM.bw",
+    Astrocyte: "Astrocyte.RPKM.bw",
+    Cones: "Cones.RPKM.bw",
+    GABA_amacrine: "GABA_amacrine.RPKM.bw",
+    Gly_amacrine: "Gly_amacrine.RPKM.bw",
+    Horizontal: "Horizontal.RPKM.bw",
+    Microglia: "Microglia.RPKM.bw",
+    Muller_glia: "Muller_glia.RPKM.bw",
+    OFF_cone_bipolar: "OFF_cone_bipolar.RPKM.bw",
+    ON_cone_bipolar: "ON_cone_bipolar.RPKM.bw",
+    RGC: "RGC.RPKM.bw",
+    Rod_bipolar: "Rod_bipolar.RPKM.bw",
+    Rods: "Rods.RPKM.bw",
+  },
+  RNA: {
+    All_amacrine: "All_amacrine.RPKM.bw",
+    Astrocyte: "Astrocyte.RPKM.bw",
+    Cones: "Cones.RPKM.bw",
+    GABA_amacrine: "GABA_amacrine.RPKM.bw",
+    Gly_amacrine: "Gly_amacrine.RPKM.bw",
+    Horizontal: "Horizontal.RPKM.bw",
+    Microglia: "Microglia.RPKM.bw",
+    Muller_glia: "Muller_glia.RPKM.bw",
+    OFF_cone_bipolar: "OFF_cone_bipolar.RPKM.bw",
+    ON_cone_bipolar: "ON_cone_bipolar.RPKM.bw",
+    RGC: "RGC.RPKM.bw",
+    Rod_bipolar: "Rod_bipolar.RPKM.bw",
+    Rods: "Rods.RPKM.bw",
+  },
+};
 export const URLs: { [key: string]: any } = {
   ATAC_50bs: {
     All_amacrine: "All_amacrine.RPKM.bw",
