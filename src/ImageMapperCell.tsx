@@ -66,17 +66,31 @@ function ImageMapperCell(props: any) {
       }
     };
   }, []);
-  function getData(cellData: any) {
-    if (cellData.data.length > 0) {
-      setSubmitData({ ...submitData, [cellData.cell.name]: cellData });
+  function getData(selectedCellData: any) {
+    if (selectedCellData.data.length > 0) {
+      setSubmitData({
+        ...submitData,
+        [selectedCellData.cell.name]: {
+          ...submitData[selectedCellData.cell.name],
+          [selectedCellData.cell.type]: selectedCellData,
+        },
+      });
     } else {
-      let tempSubmitData = Object.fromEntries(
-        Object.entries(submitData).filter(
-          ([key]) => submitData[key].cell.id !== cellData.cell.id
-        )
-      );
-
-      setSubmitData({ ...tempSubmitData });
+      const copySubmitData = { ...submitData };
+      if (
+        copySubmitData[selectedCellData.cell.name] &&
+        selectedCellData.cell.type in copySubmitData[selectedCellData.cell.name]
+      ) {
+        delete copySubmitData[selectedCellData.cell.name][
+          selectedCellData.cell.type
+        ];
+        if (
+          Object.keys(copySubmitData[selectedCellData.cell.name]).length === 0
+        ) {
+          delete copySubmitData[selectedCellData.cell.name];
+        }
+      }
+      setSubmitData(copySubmitData);
     }
   }
 
@@ -285,7 +299,7 @@ function ImageMapperCell(props: any) {
   }
 
   useEffect(() => {
-    console.log(submitData);
+    console.log(submitData, "submitData");
   }, [submitData]);
 
   return (

@@ -72,13 +72,13 @@ export function CellCheckBox(props: any) {
   useEffect(() => {
     let urlObj: { [key: string]: any } = {};
     const URLsType = props.cell.type === "human" ? URLs : mouseURLs;
-    {
-      for (const dataType of dataChoice) {
-        urlObj[dataType] =
-          // startUrl + dataType + "/" + URLs[dataType][props.cell.name];
-          URLsType[dataType][props.cell.name];
-      }
+
+    for (const dataType of dataChoice) {
+      urlObj[dataType] =
+        // startUrl + dataType + "/" + URLs[dataType][props.cell.name];
+        URLsType[dataType][props.cell.name];
     }
+
     console.log({
       cell: props.cell,
       data: dataChoice,
