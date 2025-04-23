@@ -278,7 +278,7 @@ function ImageMapperCell(props: any) {
     else{
       hub = [...humanHub, ...mouseHub]
     }
-    console.log(hub)
+
     let hid = uuidv4();
     axios
       .post(
