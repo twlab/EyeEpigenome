@@ -109,13 +109,14 @@ function ImageMapperCell(props: any) {
       return;
     }
     const formattedSubmitData: { [key: string]: any } = {};
+    let hasGenomeAlign = false;
     for (let key in submitData) {
       const cell = submitData[key];
       formattedSubmitData[`${key}`] = { url: {} };
       if (cell["human"]) {
         for (let cellKey in cell.human.url) {
           const url = cell.human.url[cellKey];
-          formattedSubmitData[`${key}`].url[cellKey] = url;
+          formattedSubmitData[`${key}`].url[cellKey] = { type: "human", url };
         }
       }
       if (cell["mouse"]) {
@@ -125,23 +126,17 @@ function ImageMapperCell(props: any) {
             formattedSubmitData[`${key}`].url &&
             cellMouseKey in formattedSubmitData[`${key}`].url
           ) {
-            const humanUrl = formattedSubmitData[`${key}`].url[cellMouseKey];
-            formattedSubmitData[`${key}`].url[cellMouseKey] = [
-              { type: "human", url: humanUrl },
-              {
-                type: "genomealign",
-                url: "https://vizhub.wustl.edu/public/hg38/weaver/hg38_mm10_axt.gz",
-              },
-              { type: "mouse", url },
-            ];
-          } else {
-            formattedSubmitData[`${key}`].url[cellMouseKey] = url;
+            hasGenomeAlign = true;
           }
+          formattedSubmitData[`${key}`].url[cellMouseKey] = {
+            type: "mouse",
+            url,
+          };
         }
       }
     }
 
-    dataToHub(formattedSubmitData);
+    dataToHub(formattedSubmitData, hasGenomeAlign);
     // let toastDisplay = Object.entries(submitData).map(([key]) => ({
     //   [key]: submitData[key].url,
     // }));
@@ -162,21 +157,24 @@ function ImageMapperCell(props: any) {
     ATAC: 2,
   };
 
-  function dataToHub(data: { [key: string]: any }) {
-    let hub: any[] = [];
+  function dataToHub(data: { [key: string]: any }, hasGenomeAlign: boolean) {
+    const humanHub: any[] = [];
+    const mouseHub: any[] = [];
 
     for (const [key, value] of Object.entries(data)) {
       // console.log(key);
       // console.log(value)
 
-      for (const [folder, files] of Object.entries(value.url)) {
+      for (const [folder, dataObj] of Object.entries(value.url)) {
+        const files: { [key: string]: any } = dataObj as any;
         let type = ["Hi-C: 10k", "Hi-C: 25k", "Hi-C: 100k"].includes(folder)
           ? "hic"
           : "bigWig";
         let assay = folder;
         if (folder === "Methylation") {
-          const fileArr = Array.isArray(files) ? files : [files];
-          hub.push({
+          // Methylation track is only avialible to human type so we add to that array.
+          const fileArr = Array.isArray(files.url) ? files.url : [files.url];
+          humanHub.push({
             name: `${key} CGN methylation`,
             url: startUrl + fileArr[0],
             showOnHubLoad: true,
@@ -186,7 +184,7 @@ function ImageMapperCell(props: any) {
               assay: "CGN methylation",
             },
           });
-          hub.push({
+          humanHub.push({
             name: `${key} CHN methylation`,
             url: startUrl + fileArr[1],
             showOnHubLoad: true,
@@ -197,57 +195,32 @@ function ImageMapperCell(props: any) {
             },
           });
         } else {
+          // The genome type here can be human or mouse ATAC AND RNA
           if (grouping.hasOwnProperty(assay)) {
-            if (Array.isArray(files)) {
-              for (let i = 0; i < files.length; i++) {
-                const urlObj = files[i];
-                const genomeType = urlObj.type;
-                const trackHub =
-                  genomeType === "genomealign"
-                    ? {
-                        name: "hg38tomm10",
-                        label: "Query mouse mm10 to hg38 blastz",
-                        type: "genomealign",
-                        showOnHubLoad: true,
-                        querygenome: "mm10",
-                        filetype: "genomealign",
-                        url: "https://vizhub.wustl.edu/public/hg38/weaver/hg38_mm10_axt.gz",
-                      }
-                    : {
-                        name: `${genomeType} ${key} ${assay}`,
-                        url: startUrl + urlObj.url,
-                        type,
-                        showOnHubLoad: true,
-                        options: {
-                          group: grouping[assay],
-                        },
-                        metadata: {
-                          cell: key,
-                          assay,
-                        },
-                      };
+            const trackHub = {
+              name: `${files.type} ${key} ${assay}`,
+              url: startUrl + files.url,
+              type,
+              showOnHubLoad: true,
+              options: {
+                group: grouping[assay],
+              },
+              metadata: {
+                cell: key,
+                assay,
+              },
+            };
 
-                hub.push(trackHub);
-              }
+            if (files.type === "human") {
+              humanHub.push(trackHub);
             } else {
-              hub.push({
-                name: `${key} ${assay}`,
-                url: startUrl + files,
-                type,
-                showOnHubLoad: true,
-                options: {
-                  group: grouping[assay],
-                },
-                metadata: {
-                  cell: key,
-                  assay,
-                },
-              });
+              mouseHub.push(trackHub);
             }
           } else {
-            hub.push({
+            // other track types that only human type has
+            humanHub.push({
               name: `${key} ${assay}`,
-              url: startUrl + files,
+              url: startUrl + files.url,
               type,
               showOnHubLoad: true,
               metadata: {
@@ -258,6 +231,26 @@ function ImageMapperCell(props: any) {
           }
         }
       }
+    }
+    if (hasGenomeAlign) {
+    }
+    let hub: Array<any> = [];
+    if (hasGenomeAlign) {
+      hub = [
+        ...humanHub,
+        {
+          name: "hg38tomm10",
+          label: "Query mouse mm10 to hg38 blastz",
+          type: "genomealign",
+          showOnHubLoad: true,
+          querygenome: "mm10",
+          filetype: "genomealign",
+          url: "https://vizhub.wustl.edu/public/hg38/weaver/hg38_mm10_axt.gz",
+        },
+        ...mouseHub,
+      ];
+    } else {
+      hub = [...humanHub, ...mouseHub];
     }
 
     let hid = uuidv4();
