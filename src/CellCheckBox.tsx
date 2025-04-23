@@ -72,18 +72,24 @@ export function CellCheckBox(props: any) {
   useEffect(() => {
     let urlObj: { [key: string]: any } = {};
     const URLsType = props.cell.type === "human" ? URLs : mouseURLs;
+    const folder = props.cell.type === "human" ? "" : "mouse/";
 
     for (const dataType of dataChoice) {
-      urlObj[dataType.label] =
-        // startUrl + dataType + "/" + URLs[dataType][props.cell.name];
-        `${dataType.id}` + "/" + `${URLsType[dataType.id][props.cell.name]}`;
+      let dataUrls;
+      if (dataType.id === "mC_bw") {
+        dataUrls = [...URLsType[dataType.id][props.cell.name]];
+        dataUrls[0] = "mC_bw/" + dataUrls[0];
+        dataUrls[1] = "mC_bw/" + dataUrls[1];
+      } else {
+        dataUrls =
+          `${folder}` +
+          `${dataType.id}` +
+          "/" +
+          `${URLsType[dataType.id][props.cell.name]}`;
+      }
+      urlObj[dataType.label] = dataUrls;
     }
 
-    console.log({
-      cell: props.cell,
-      data: dataChoice,
-      url: urlObj,
-    });
     props.getData({
       cell: props.cell,
       data: dataChoice,

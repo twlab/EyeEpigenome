@@ -126,15 +126,22 @@ function ImageMapperCell(props: any) {
             cellMouseKey in formattedSubmitData[`${key}`].url
           ) {
             const humanUrl = formattedSubmitData[`${key}`].url[cellMouseKey];
-            formattedSubmitData[`${key}`].url[cellMouseKey] = [humanUrl, url];
+            formattedSubmitData[`${key}`].url[cellMouseKey] = [
+              { type: "human", url: humanUrl },
+              {
+                type: "genomealign",
+                url: "https://vizhub.wustl.edu/public/hg38/weaver/hg38_mm10_axt.gz",
+              },
+              { type: "mouse", url },
+            ];
           } else {
             formattedSubmitData[`${key}`].url[cellMouseKey] = url;
           }
         }
       }
     }
-    console.log(formattedSubmitData, "submit data");
-    // dataToHub(submitData);
+
+    dataToHub(formattedSubmitData);
     // let toastDisplay = Object.entries(submitData).map(([key]) => ({
     //   [key]: submitData[key].url,
     // }));
@@ -150,7 +157,7 @@ function ImageMapperCell(props: any) {
     // });
   }
 
-  const grouping = {
+  const grouping: { [key: string]: any } = {
     RNA: 1,
     ATAC: 2,
   };
@@ -163,16 +170,15 @@ function ImageMapperCell(props: any) {
       // console.log(value)
 
       for (const [folder, files] of Object.entries(value.url)) {
-        console.log(folder, files);
-        let type = ["hic_10K", "hic_25K", "hic_100K"].includes(folder)
+        let type = ["Hi-C: 10k", "Hi-C: 25k", "Hi-C: 100k"].includes(folder)
           ? "hic"
           : "bigWig";
-        let assay = folder.split("_")[0];
-        if (folder === "mC_bw") {
+        let assay = folder;
+        if (folder === "Methylation") {
           const fileArr = Array.isArray(files) ? files : [files];
           hub.push({
             name: `${key} CGN methylation`,
-            url: startUrl + folder + "/" + fileArr[0],
+            url: startUrl + fileArr[0],
             showOnHubLoad: true,
             type,
             metadata: {
@@ -182,7 +188,7 @@ function ImageMapperCell(props: any) {
           });
           hub.push({
             name: `${key} CHN methylation`,
-            url: startUrl + folder + "/" + fileArr[1],
+            url: startUrl + fileArr[1],
             showOnHubLoad: true,
             type,
             metadata: {
@@ -192,12 +198,41 @@ function ImageMapperCell(props: any) {
           });
         } else {
           if (grouping.hasOwnProperty(assay)) {
-            const fileArr = Array.isArray(files) ? files : [files];
             if (Array.isArray(files)) {
+              for (let i = 0; i < files.length; i++) {
+                const urlObj = files[i];
+                const genomeType = urlObj.type;
+                const trackHub =
+                  genomeType === "genomealign"
+                    ? {
+                        name: "hg38tomm10",
+                        label: "Query mouse mm10 to hg38 blastz",
+                        type: "genomealign",
+                        showOnHubLoad: true,
+                        querygenome: "mm10",
+                        filetype: "genomealign",
+                        url: "https://vizhub.wustl.edu/public/hg38/weaver/hg38_mm10_axt.gz",
+                      }
+                    : {
+                        name: `${genomeType} ${key} ${assay}`,
+                        url: startUrl + urlObj.url,
+                        type,
+                        showOnHubLoad: true,
+                        options: {
+                          group: grouping[assay],
+                        },
+                        metadata: {
+                          cell: key,
+                          assay,
+                        },
+                      };
+
+                hub.push(trackHub);
+              }
             } else {
               hub.push({
                 name: `${key} ${assay}`,
-                url: startUrl + folder + "/" + files,
+                url: startUrl + files,
                 type,
                 showOnHubLoad: true,
                 options: {
@@ -212,7 +247,7 @@ function ImageMapperCell(props: any) {
           } else {
             hub.push({
               name: `${key} ${assay}`,
-              url: startUrl + folder + "/" + files,
+              url: startUrl + files,
               type,
               showOnHubLoad: true,
               metadata: {
@@ -224,7 +259,7 @@ function ImageMapperCell(props: any) {
         }
       }
     }
-    // console.log(hub)
+
     let hid = uuidv4();
     axios
       .post(
@@ -310,27 +345,31 @@ function ImageMapperCell(props: any) {
     }));
   }
   function deleteCard(cell: any) {
-    let newCellData = cellData.filter((item, index) => {
-      return item.id !== cell.id;
-    });
-    let newMouseCellData = mouseCellData.filter((item, index) => {
-      return item.id !== cell.id;
-    });
+    const copySubmitData = { ...submitData };
 
-    let tempSubmitData = Object.fromEntries(
-      Object.entries(submitData).filter(
-        ([key]) => submitData[key].cell.id !== cell.id
-      )
-    );
+    // Updating the human and mouse data of the corresponding cell name in submitData
+    if (cell.type === "human") {
+      delete copySubmitData[cell.name]["human"];
+      let newCellData = cellData.filter((item) => item.id !== cell.id);
+      setCellData(newCellData);
+    } else if (cell.type === "mouse") {
+      delete copySubmitData[cell.name]["mouse"];
+      let newMouseCellData = mouseCellData.filter(
+        (item) => item.id !== cell.id
+      );
+      setMouseCellData(newMouseCellData);
+    }
 
-    setSubmitData({ ...tempSubmitData });
-    setCellData(newCellData);
-    setMouseCellData(newMouseCellData);
+    if (!copySubmitData[cell.name].human && !copySubmitData[cell.name].mouse) {
+      delete copySubmitData[cell.name];
+    }
+    // Updating the state with the new values
+    setSubmitData(copySubmitData);
   }
 
-  useEffect(() => {
-    console.log(submitData, "submitData");
-  }, [submitData]);
+  // useEffect(() => {
+  //   console.log(submitData, "submitData");
+  // }, [submitData]);
 
   return (
     <>
