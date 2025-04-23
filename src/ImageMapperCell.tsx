@@ -232,8 +232,7 @@ function ImageMapperCell(props: any) {
         }
       }
     }
-    if (hasGenomeAlign) {
-    }
+
     let hub: Array<any> = [];
     if (hasGenomeAlign) {
       hub = [
