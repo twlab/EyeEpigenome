@@ -313,7 +313,8 @@ function ImageMapperCell(props: any) {
     //   ...prevState,
     //   [cell.name]: true,
     // }));
-
+    const copySubmitData = { ...submitData };
+    let deleteCard = false;
     setCellData((prevCellData) => {
       let dupe = false;
       for (let i = 0; i < prevCellData.length; i++) {
@@ -322,7 +323,9 @@ function ImageMapperCell(props: any) {
         }
       }
       if (dupe) {
-        return prevCellData;
+        deleteCard = true;
+        console.log(mouseCellData);
+        return prevCellData.filter((item) => item.name !== cell.name);
       } else {
         let id = uuidv4();
         const newCell = { ...cell };
@@ -340,7 +343,9 @@ function ImageMapperCell(props: any) {
           }
         }
         if (dupe) {
-          return prevCellData;
+          deleteCard = true;
+
+          return prevCellData.filter((item) => item.name !== cell.name);
         } else {
           let id = uuidv4();
           const newCell = { ...cell };
@@ -349,6 +354,11 @@ function ImageMapperCell(props: any) {
           return [...prevCellData, newCell];
         }
       });
+    }
+
+    if (copySubmitData && copySubmitData[cell.name] && deleteCard) {
+      delete copySubmitData[cell.name];
+      setSubmitData(copySubmitData);
     }
   }
   function handleHoverLeave(cell: any) {
