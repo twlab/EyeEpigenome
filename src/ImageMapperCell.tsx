@@ -108,7 +108,7 @@ function ImageMapperCell(props: any) {
       });
       return;
     }
- 
+
     const formattedSubmitData: { [key: string]: any } = {};
     for (let key in submitData) {
       const cell = submitData[key];
@@ -116,7 +116,7 @@ function ImageMapperCell(props: any) {
       if (cell["human"]) {
         for (let cellKey in cell.human.url) {
           const url = cell.human.url[cellKey];
-          formattedSubmitData[`${key}`].url[cellKey] = {type: "human", url};
+          formattedSubmitData[`${key}`].url[cellKey] = { type: "human", url };
         }
       }
       if (cell["mouse"]) {
@@ -126,15 +126,17 @@ function ImageMapperCell(props: any) {
             formattedSubmitData[`${key}`].url &&
             cellMouseKey in formattedSubmitData[`${key}`].url
           ) {
-
             const humanUrl = formattedSubmitData[`${key}`].url[cellMouseKey];
             formattedSubmitData[`${key}`].url[cellMouseKey] = [
               humanUrl,
-    
+
               { type: "mouse", url },
             ];
           } else {
-            formattedSubmitData[`${key}`].url[cellMouseKey] = {type: "mouse", url};
+            formattedSubmitData[`${key}`].url[cellMouseKey] = {
+              type: "mouse",
+              url,
+            };
           }
         }
       }
@@ -162,15 +164,14 @@ function ImageMapperCell(props: any) {
   };
 
   function dataToHub(data: { [key: string]: any }) {
-
-    const humanHub : any[] = []
-    const mouseHub : any[] = []
+    const humanHub: any[] = [];
+    const mouseHub: any[] = [];
     for (const [key, value] of Object.entries(data)) {
       // console.log(key);
       // console.log(value)
 
       for (const [folder, genomeData] of Object.entries(value.url)) {
-        const files: {[key:string]: any} = genomeData as any
+        const files: { [key: string]: any } = genomeData as any;
         let type = ["Hi-C: 10k", "Hi-C: 25k", "Hi-C: 100k"].includes(folder)
           ? "hic"
           : "bigWig";
@@ -202,30 +203,27 @@ function ImageMapperCell(props: any) {
             if (Array.isArray(files)) {
               for (let i = 0; i < files.length; i++) {
                 const urlObj = files[i];
-             
+
                 const genomeType = urlObj.type;
-                const trackHub ={
-                        name: `${genomeType} ${key} ${assay}`,
-                        url: startUrl + urlObj.url,
-                        type,
-                        showOnHubLoad: true,
-                        options: {
-                          group: grouping[assay],
-                        },
-                        metadata: {
-                          cell: key,
-                          assay,
-                        },
-                      };
-           
-                  if(urlObj.type === "human"){
-         
-                    humanHub.push(trackHub)
-                  }
-                  else{
-                    mouseHub.push(trackHub)
-                  }
-          
+                const trackHub = {
+                  name: `${genomeType} ${key} ${assay}`,
+                  url: startUrl + urlObj.url,
+                  type,
+                  showOnHubLoad: true,
+                  options: {
+                    group: grouping[assay],
+                  },
+                  metadata: {
+                    cell: key,
+                    assay,
+                  },
+                };
+
+                if (urlObj.type === "human") {
+                  humanHub.push(trackHub);
+                } else {
+                  mouseHub.push(trackHub);
+                }
               }
             } else {
               const trackHub = {
@@ -240,12 +238,11 @@ function ImageMapperCell(props: any) {
                   cell: key,
                   assay,
                 },
-              }
-              if(files.type === "human"){
-                humanHub.push(trackHub)
-              }
-              else{
-                mouseHub.push(trackHub)
+              };
+              if (files.type === "human") {
+                humanHub.push(trackHub);
+              } else {
+                mouseHub.push(trackHub);
               }
             }
           } else {
@@ -263,20 +260,23 @@ function ImageMapperCell(props: any) {
         }
       }
     }
-    let hub
-    if(mouseHub.length > 0){
-      hub = [...humanHub, {
-        name: "hg38tomm10",
-        label: "Query mouse mm10 to hg38 blastz",
-        type: "genomealign",
-        showOnHubLoad: true,
-        querygenome: "mm10",
-        filetype: "genomealign",
-        url: "https://vizhub.wustl.edu/public/hg38/weaver/hg38_mm10_axt.gz",
-      }, ...mouseHub]
-    }
-    else{
-      hub = [...humanHub, ...mouseHub]
+    let hub;
+    if (mouseHub.length > 0) {
+      hub = [
+        ...humanHub,
+        {
+          name: "hg38tomm10",
+          label: "Query mouse mm10 to hg38 blastz",
+          type: "genomealign",
+          showOnHubLoad: true,
+          querygenome: "mm10",
+          filetype: "genomealign",
+          url: "https://vizhub.wustl.edu/public/hg38/weaver/hg38_mm10_axt.gz",
+        },
+        ...mouseHub,
+      ];
+    } else {
+      hub = [...humanHub, ...mouseHub];
     }
 
     let hid = uuidv4();
@@ -368,11 +368,15 @@ function ImageMapperCell(props: any) {
 
     // Updating the human and mouse data of the corresponding cell name in submitData
     if (cell.type === "human") {
-      delete copySubmitData[cell.name]["human"];
+      if (copySubmitData[cell.name]) {
+        delete copySubmitData[cell.name]["human"];
+      }
       let newCellData = cellData.filter((item) => item.id !== cell.id);
       setCellData(newCellData);
     } else if (cell.type === "mouse") {
-      delete copySubmitData[cell.name]["mouse"];
+      if (copySubmitData[cell.name]) {
+        delete copySubmitData[cell.name]["mouse"];
+      }
       let newMouseCellData = mouseCellData.filter(
         (item) => item.id !== cell.id
       );
