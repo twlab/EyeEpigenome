@@ -25,6 +25,7 @@ function ImageMapperCell(props: any) {
   const [mouseCellData, setMouseCellData] = useState<Array<any>>([]);
   const [submitData, setSubmitData] = useState<{ [key: string]: any }>({});
   const [imgCoords, setImgCoords] = useState("0");
+  const addCard = useRef(true);
   const [cellHoverArea, setCellHoverArea] = useState<{ [key: string]: any }>(
     []
   );
@@ -308,57 +309,48 @@ function ImageMapperCell(props: any) {
       });
   }
 
-  function handleImgClick(cell: any) {
-    // setCellHoverArea((prevState) => ({
-    //   ...prevState,
-    //   [cell.name]: true,
-    // }));
-    const copySubmitData = { ...submitData };
-    let deleteCard = false;
-    setCellData((prevCellData) => {
-      let dupe = false;
-      for (let i = 0; i < prevCellData.length; i++) {
-        if (cell.name === prevCellData[i].name) {
-          dupe = true;
-        }
+  async function handleImgClick(cell: any) {
+    addCard.current = true;
+    // need the await or else the setStates will be async causing the check for addCard.
+    await setMouseCellData((prevState) => {
+      const hasCell = prevState.filter((item) => item.name === cell.name);
+      if (hasCell.length > 0) {
+        addCard.current = false;
       }
-      if (dupe) {
-        deleteCard = true;
-        console.log(mouseCellData);
-        return prevCellData.filter((item) => item.name !== cell.name);
-      } else {
+      return prevState.filter((item) => item.name !== cell.name);
+    });
+    await setCellData((prevState) => {
+      const hasCell = prevState.filter((item) => item.name === cell.name);
+      if (hasCell.length > 0) {
+        addCard.current = false;
+      }
+      return prevState.filter((item) => item.name !== cell.name);
+    });
+    await setSubmitData((prevSubmit) => {
+      const copySubmitData = { ...prevSubmit };
+      if (copySubmitData && copySubmitData[cell.name]) {
+        delete copySubmitData[cell.name];
+        setSubmitData(copySubmitData);
+      }
+    });
+
+    if (addCard.current) {
+      setCellData((prevCellData) => {
         let id = uuidv4();
         const newCell = { ...cell };
         newCell["id"] = id;
         newCell["type"] = "human";
         return [...prevCellData, newCell];
-      }
-    });
-    if (cell.name in mouseURLs.ATAC || cell.name in mouseURLs.RNA) {
-      setMouseCellData((prevCellData) => {
-        let dupe = false;
-        for (let i = 0; i < prevCellData.length; i++) {
-          if (cell.name === prevCellData[i].name) {
-            dupe = true;
-          }
-        }
-        if (dupe) {
-          deleteCard = true;
-
-          return prevCellData.filter((item) => item.name !== cell.name);
-        } else {
+      });
+      if (cell.name in mouseURLs.ATAC || cell.name in mouseURLs.RNA) {
+        setMouseCellData((prevCellData) => {
           let id = uuidv4();
           const newCell = { ...cell };
           newCell["id"] = id;
           newCell["type"] = "mouse";
           return [...prevCellData, newCell];
-        }
-      });
-    }
-
-    if (copySubmitData && copySubmitData[cell.name] && deleteCard) {
-      delete copySubmitData[cell.name];
-      setSubmitData(copySubmitData);
+        });
+      }
     }
   }
   function handleHoverLeave(cell: any) {
@@ -392,12 +384,6 @@ function ImageMapperCell(props: any) {
       );
       setMouseCellData(newMouseCellData);
     }
-
-    if (!copySubmitData[cell.name].human && !copySubmitData[cell.name].mouse) {
-      delete copySubmitData[cell.name];
-    }
-    // Updating the state with the new values
-    setSubmitData(copySubmitData);
   }
 
   // useEffect(() => {
