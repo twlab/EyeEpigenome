@@ -10,7 +10,7 @@ function App() {
   return (
     <>
       <div className="bg-orange-600">
-        <div className="max-w-7xl mx-auto flex items-center justify-between py-6 px-4">
+        <div className="max-w-8xl mx-auto flex items-center justify-between py-5 px-4">
           <h1 className="text-4xl font-bold text-white">Epigenomics in the Eye</h1>
 
           <a
