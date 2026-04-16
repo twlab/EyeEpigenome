@@ -9,10 +9,34 @@ function App() {
 
   return (
     <>
-      <div className="bg-orange-500">
-        <h1 className="text-4xl font-bold py-8 text-white px-4">
-          Epigenomics in the Eye
-        </h1>
+      <div className="bg-orange-600">
+        <div className="max-w-7xl mx-auto flex items-center justify-between py-6 px-4">
+          <h1 className="text-4xl font-bold text-white">Epigenomics in the Eye</h1>
+
+          <a
+            href="https://epigenome.wustl.edu/EyeEpigenome/data/"
+            target="_blank"
+            rel="noreferrer"
+            className="text-blue-100 font-medium hover:underline underline-offset-2 transition transform hover:scale-105 hover:brightness-110 flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-4 h-4 translate-y-0.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <title>Open external link</title>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 3h6v6" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 14L21 3" />
+            </svg>
+            <span>Access and Download Data</span>
+          </a>
+        </div>
       </div>
 
       <p className="px-4">
