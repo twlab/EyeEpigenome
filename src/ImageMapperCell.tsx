@@ -27,7 +27,7 @@ function ImageMapperCell(props: any) {
   const [imgCoords, setImgCoords] = useState("0");
   const addCard = useRef(true);
   const [cellHoverArea, setCellHoverArea] = useState<{ [key: string]: any }>(
-    []
+    [],
   );
   const [ref, size] = useResizeObserver();
   const targetRef = useRef<HTMLDivElement>(null);
@@ -53,7 +53,7 @@ function ImageMapperCell(props: any) {
           topleftX,
           topleftY,
           bottomrightX,
-          bottomrightY
+          bottomrightY,
         );
       }
       targetRef.current.addEventListener("mousemove", handleMouseEnter);
@@ -289,7 +289,7 @@ function ImageMapperCell(props: any) {
           hub: {
             content: hub,
           },
-        }
+        },
       )
       .then((res) => {
         // console.log(res);
@@ -380,7 +380,7 @@ function ImageMapperCell(props: any) {
         delete copySubmitData[cell.name]["mouse"];
       }
       let newMouseCellData = mouseCellData.filter(
-        (item) => item.id !== cell.id
+        (item) => item.id !== cell.id,
       );
       setMouseCellData(newMouseCellData);
     }
@@ -408,6 +408,19 @@ function ImageMapperCell(props: any) {
           onClick={(area: any) => handleImgClick(area)}
           lineWidth={3}
           map={mapData as Map}
+          areaKeyName="id"
+          rerenderProps={[]}
+          active={true}
+          disabled={false}
+          fillColor="rgba(255, 255, 255, 0.5)"
+          strokeColor="rgba(0, 0, 0, 0.5)"
+          imgWidth={0}
+          width={0}
+          height={0}
+          natural={false}
+          stayHighlighted={false}
+          stayMultiHighlighted={false}
+          toggleHighlighted={false}
         />
         <div>
           <Card className="flex flex-wrap max-w-[2560px] justify-center items-center min-h-[300px] bg-white shadow-lg rounded-lg p-4">
