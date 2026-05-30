@@ -1,17 +1,27 @@
 import { useState } from "react";
 import "./App.css";
 import ImageMapperCell from "./ImageMapperCell";
-import BrowserFrame from "./BrowserFrame";
 
+import { GenomeHub } from "wuepgg";
+import "wuepgg/style.css";
+const genomeCoord = {
+  genomeCoordinate: "chr7:27053397-27373765",
+};
+const genomeName = "hg38";
 function App() {
   const [hubId, setHubId] = useState(null);
+  const [tracks, setTracks] = useState([]);
   const [hubReady, setHubReady] = useState(false);
-
+  function setHubTracks(newTracks) {
+    setTracks(newTracks);
+  }
   return (
     <>
       <div className="bg-orange-600">
         <div className="max-w-8xl mx-auto flex items-center justify-between py-5 px-4">
-          <h1 className="text-4xl font-bold text-white">Epigenomics in the Eye</h1>
+          <h1 className="text-4xl font-bold text-white">
+            Epigenomics in the Eye
+          </h1>
 
           <a
             href="https://epigenome.wustl.edu/EyeEpigenome/data/"
@@ -30,9 +40,21 @@ function App() {
               focusable="false"
             >
               <title>Open external link</title>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 3h6v6" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10 14L21 3" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 3h6v6"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M10 14L21 3"
+              />
             </svg>
             <span>Access and Download Data</span>
           </a>
@@ -49,9 +71,28 @@ function App() {
           hubReady={hubReady}
           setHubReady={setHubReady}
           setHubId={setHubId}
+          setHubTracks={setHubTracks}
         />
       </div>
-      <div>{hubReady && <BrowserFrame hubId={hubId} />}</div>
+
+      <div>
+        {tracks.length > 0 ? (
+          <GenomeHub
+            storeConfig={{ storeId: "genome-1" }}
+            viewRegion={genomeCoord}
+            genomeName={genomeName}
+            tracks={tracks}
+            showGenomeNavigator={true}
+            showNavBar={true}
+            showToolBar={true}
+            // onSessionUpdate={(session: any) => {
+            //   console.log(session);
+            // }}
+          />
+        ) : (
+          ""
+        )}
+      </div>
       <div className="inline-flex items-center justify-center w-full">
         <hr className=" w-32 h-1  bg-gray-200 border-0 rounded dark:bg-gray-700" />
         <div
@@ -65,7 +106,8 @@ function App() {
             rel="noreferrer"
           >
             Radha Ayyagari lab
-          </a>{" "}, 
+          </a>{" "}
+          ,
           <a
             href="http://renlab.sdsc.edu/renlab_website/"
             target="_blank"

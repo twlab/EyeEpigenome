@@ -6,7 +6,6 @@ import eyeImg from "./assets/eyecell-img.png";
 import { v4 as uuidv4 } from "uuid";
 import useResizeObserver from "./Resize";
 import { CrossCircledIcon } from "@radix-ui/react-icons";
-import axios from "axios";
 import {
   Card,
   CardContent,
@@ -279,34 +278,34 @@ function ImageMapperCell(props: any) {
     } else {
       hub = [...humanHub, ...mouseHub];
     }
-
-    let hid = uuidv4();
-    axios
-      .post(
-        "https://hcwxisape8.execute-api.us-east-1.amazonaws.com/dev/datahub/",
-        {
-          _id: `${hid}`,
-          hub: {
-            content: hub,
-          },
-        },
-      )
-      .then((res) => {
-        // console.log(res);
-        props.setHubReady(true);
-        props.setHubId(hid);
-      })
-      .catch((err) => {
-        // console.error(err);
-        toast({
-          title: "Something error happened",
-          description: (
-            <p className="bg-red-500 text-white text-xl">
-              API request fails, please contact site admin.
-            </p>
-          ),
-        });
-      });
+    props.setHubTracks(hub.map(({ id: _id, ...rest }) => rest));
+    // let hid = uuidv4();
+    // axios
+    //   .post(
+    //     "https://hcwxisape8.execute-api.us-east-1.amazonaws.com/dev/datahub/",
+    //     {
+    //       _id: `${hid}`,
+    //       hub: {
+    //         content: hub,
+    //       },
+    //     },
+    //   )
+    //   .then((res) => {
+    //     // console.log(res);
+    //     props.setHubReady(true);
+    //     props.setHubId(hid);
+    //   })
+    //   .catch((err) => {
+    //     // console.error(err);
+    //     toast({
+    //       title: "Something error happened",
+    //       description: (
+    //         <p className="bg-red-500 text-white text-xl">
+    //           API request fails, please contact site admin.
+    //         </p>
+    //       ),
+    //     });
+    //   });
   }
 
   async function handleImgClick(cell: any) {
@@ -548,20 +547,6 @@ function ImageMapperCell(props: any) {
               >
                 Visualize
               </Button>
-              {props.hubReady && (
-                <p className="px-4 mt-2 text-gray-600">
-                  Open the visualization in a new window,{" "}
-                  <a
-                    className="text-blue-500 underline hover:text-blue-700"
-                    href={`https://epigenomegateway.wustl.edu/browser2022/?genome=hg38&hub=https://hcwxisape8.execute-api.us-east-1.amazonaws.com/dev/datahub/${props.hubId}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    click here
-                  </a>
-                  .
-                </p>
-              )}
             </CardFooter>
           </Card>
         </div>
