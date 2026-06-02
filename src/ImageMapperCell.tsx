@@ -422,7 +422,7 @@ function ImageMapperCell(props: any) {
           toggleHighlighted={false}
         />
         <div>
-          <Card className="flex flex-wrap max-w-[2560px] justify-center items-center min-h-[300px] bg-white shadow-lg rounded-lg p-4">
+          <Card className="flex flex-wrap justify-center items-center min-h-[300px] bg-white shadow-lg rounded-lg p-4">
             <CardHeader className="w-full  text-center">
               <CardTitle className="text-2xl font-bold text-gray-700">
                 Selected Cell Types
