@@ -542,7 +542,7 @@ function ImageMapperCell(props: any) {
 
             <CardFooter className="w-full mt-6 text-center justify-center">
               <Button
-                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+                className="bg-yellow-500 text-black py-2 px-4 rounded hover:bg-yellow-600"
                 onClick={() => handleSubmitToEg()}
               >
                 Visualize
